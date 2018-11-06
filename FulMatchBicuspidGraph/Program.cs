@@ -15,6 +15,8 @@ namespace FulMatchBicuspidGraph
                 var result = Algo.IsFullMatchBicupsidGraph(graph);
                 var writer = new StreamWriter("out.txt");
                 Reporter.Report(writer, result.Item1, result.Item2);
+                writer.Flush();
+                writer.Dispose();
             }
         }
     }

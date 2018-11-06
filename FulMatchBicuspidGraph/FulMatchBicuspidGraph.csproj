@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="Algo.cs" />
     <Compile Include="BicupsidGraph.cs" />
-    <Compile Include="Extension.cs" />
     <Compile Include="Flow.cs" />
     <Compile Include="INetwork.cs" />
     <Compile Include="OneThroughputNetwork.cs" />
