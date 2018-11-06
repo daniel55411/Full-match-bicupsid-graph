@@ -127,7 +127,7 @@ namespace FulMatchBicuspidGraph
             var result = Algo.IsFullMatchBicupsidGraph(graph);
 
             Assert.IsFalse(result.Item1);
-            Assert.AreEqual(1, result.Item2.First().Item1);
+            Assert.AreEqual(3, result.Item2.First().Item1);
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace FulMatchBicuspidGraph
 
             foreach (var tuple in actual.Edges)
             {
-                if (actual.Get(tuple) != expected[tuple])
+                if (actual.Get(tuple.Item1, tuple.Item2) != expected[tuple])
                 {
                     return false;
                 }

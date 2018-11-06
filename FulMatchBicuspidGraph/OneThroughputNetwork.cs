@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FulMatchBicuspidGraph
 {
@@ -27,7 +24,13 @@ namespace FulMatchBicuspidGraph
 
         public int Throughput(int firstVertex, int secondVertex)
         {
-            return ThroughputValue;
+            if (firstVertex < _adjancecyList.Length
+                && _adjancecyList[firstVertex].Contains(secondVertex))
+            {
+                return ThroughputValue;
+            }
+
+            return 0;
         }
     }
 }

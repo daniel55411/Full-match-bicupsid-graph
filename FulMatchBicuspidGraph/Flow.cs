@@ -9,57 +9,56 @@ namespace FulMatchBicuspidGraph
         public INetwork OneThroughputNetwork { get; }
         public int Source { get; }
         public int Sink { get; }
-        public int Value => _flowValues
-            .Where(pair => pair.Key.Item2 == Sink)
-            .Sum(pair => pair.Value);
 
-        public IEnumerable<Tuple<int, int>> Edges => _flowValues
-            .Where(pair => pair.Value != 0)
-            .Select(pair => pair.Key);
+        public int Value => GetEdges()
+            .Where(pair => pair.Item2 == Sink)
+            .Select(tuple => _flowValues[tuple.Item1, tuple.Item2])
+            .Sum();
 
-        private readonly IDictionary<Tuple<int, int>, int> _flowValues;
+        public IEnumerable<Tuple<int, int>> Edges => GetEdges();
+
+        private readonly int[,] _flowValues;
 
         public Flow(INetwork network, int source, int sink)
         {
             OneThroughputNetwork = network;
             Source = source;
             Sink = sink;
-            _flowValues = new Dictionary<Tuple<int, int>, int>();
-            FillFlow(network, 0);
-        }
-
-        public int Get(Tuple<int, int> tuple)
-        {
-            return _flowValues.ContainsKey(tuple)
-                ? _flowValues[tuple]
-                : throw new Exception($"Edge({tuple.Item1} -> {tuple.Item2}) not found");
+            _flowValues = new int[network.VertexCount, network.VertexCount];
+            FillFlow();
         }
 
         public int Get(int firstVertex, int secondVertex)
         {
-            var tuple = Tuple.Create(firstVertex, secondVertex);
-            return Get(tuple);
+            return _flowValues[firstVertex, secondVertex];
         }
 
-        public bool TryUpdate(int firstVertex, int secondVertex, int value)
+        public void Update(int firstVertex, int secondVertex, int value)
         {
-            var tuple = Tuple.Create(firstVertex, secondVertex);
-            if (!_flowValues.ContainsKey(tuple))
-            {
-                return false;
-            }
-
-            _flowValues[tuple] += value;
-            return true;
+            _flowValues[firstVertex, secondVertex] += value;
         }
 
-        private void FillFlow(INetwork network, int flow)
+        private void FillFlow()
         {
-            foreach (var firstVertex in network.Vertexes)
+            for (var i = 0; i < _flowValues.GetLength(0); i++)
             {
-                foreach (var secondVertex in network.AdjacentVertices(firstVertex))
+                for (var j = 0; j < _flowValues.GetLength(0); j++)
                 {
-                    _flowValues.Add(Tuple.Create(firstVertex, secondVertex), flow);
+                    _flowValues[i, j] = 0;
+                }
+            }
+        }
+
+        private IEnumerable<Tuple<int, int>> GetEdges()
+        {
+            for (var i = 0; i < _flowValues.GetLength(0); i++)
+            {
+                for (var j = 0; j < _flowValues.GetLength(0); j++)
+                {
+                    if (_flowValues[i, j] > 0)
+                    {
+                        yield return Tuple.Create(i, j);
+                    }
                 }
             }
         }

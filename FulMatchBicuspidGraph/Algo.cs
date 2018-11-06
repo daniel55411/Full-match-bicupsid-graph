@@ -36,7 +36,7 @@ namespace FulMatchBicuspidGraph
             var item = graph.Edges
                 .GroupBy(tuple => tuple.Item1)
                 .First(tuples => tuples.All(
-                    tuple => maxFlow.Get(Tuple.Create(tuple.Item1, tuple.Item2 + graph.FirstFraction.Count)) == 0)
+                    tuple => maxFlow.Get(tuple.Item1, tuple.Item2 + graph.FirstFraction.Count) == 0)
                 ).Key;
             result.Add(Tuple.Create(item, 0));
 
@@ -53,7 +53,11 @@ namespace FulMatchBicuspidGraph
 
             while (FindPath(flow.Source, network, visited, flow, int.MaxValue) != 0)
             {
-                /* EMPTY */
+                visited = Enumerable
+                    .Range(0, network.VertexCount)
+                    .Select(i => false)
+                    .ToArray();
+
             }
 
             return flow;
@@ -65,13 +69,14 @@ namespace FulMatchBicuspidGraph
             Flow flow,
             int minFlow)
         {
+            visited[currentVertex] = true;
+
             if (currentVertex == flow.Sink)
             {
                 return minFlow;
             }
 
-            visited[currentVertex] = true;
-            foreach (var vertex in network.AdjacentVertices(currentVertex))
+            for (var vertex = 0; vertex < network.VertexCount; vertex++)
             {
                 var flowValue = flow.Get(currentVertex, vertex);
                 var throughput = network.Throughput(currentVertex, vertex);
@@ -83,8 +88,8 @@ namespace FulMatchBicuspidGraph
                         Math.Min(minFlow, throughput - flowValue));
                     if (delta > 0)
                     {
-                        flow.TryUpdate(currentVertex, vertex, delta);
-                        flow.TryUpdate(vertex, currentVertex, -delta);
+                        flow.Update(currentVertex, vertex, delta);
+                        flow.Update(vertex, currentVertex, -delta);
                         return delta;
                     }
                 }
